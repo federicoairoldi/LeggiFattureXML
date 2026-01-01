@@ -1,2 +1,2 @@
 cd %~dp0
-.venv\Script\python.exe %~n0.py
+.venv\Scripts\python.exe %~n0.py

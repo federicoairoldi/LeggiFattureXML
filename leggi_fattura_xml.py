@@ -4,11 +4,11 @@ import pandas as pd
 import os
 
 # percorsi e file
-NEW_BILLS_FOLDER = "C:/Users/ACER/Documents/Fatture_xml/nuove"
-ARCHIVE_BILLS_FOLDER = "C:/Users/ACER/Documents/Fatture_xml/archivio"
-ERROR_BILLS_FOLDER = "C:/Users/ACER/Documents/Fatture_xml/errore"
-BILLS_DATA = "G:/Il mio Drive/Fatture/fatture.csv"
-SUPPLIERS_DATA = "G:/Il mio Drive/Fatture/fornitori.csv"
+NEW_BILLS_FOLDER = r"C:\Users\ACER\Documents\Fatture_xml\nuove"
+ARCHIVE_BILLS_FOLDER = r"C:\Users\ACER\Documents\Fatture_xml\archivio"
+ERROR_BILLS_FOLDER = r"C:\Users\ACER\Documents\Fatture_xml\errore"
+BILLS_DATA = r"G:\Il mio Drive\Fatture\fatture.csv"
+SUPPLIERS_DATA = r"G:\Il mio Drive\Fatture\fornitori.csv"
 
 
 def id_gen_creator():
@@ -22,8 +22,7 @@ def id_gen_creator():
 ID_GEN = id_gen_creator()
         
 #### FUNZIONI
-def parse_bill_xml(filename):   
-    
+def parse_bill_xml(filename):
     fattura = ET.parse(filename)
     
     root = fattura.getroot()
@@ -45,8 +44,7 @@ def parse_bill_xml(filename):
         denominazione = denominazione_tag.text
     else:
         denominazione = anagrafica.find("Nome").text + ' ' + anagrafica.find("Cognome").text
-                                   
-    
+
     body = root.find("FatturaElettronicaBody")
     dati_gen = body.find("DatiGenerali")
     dati_gen_doc = dati_gen.find("DatiGeneraliDocumento")
@@ -66,8 +64,7 @@ def parse_bill_xml(filename):
             data_scadenza = dettaglio_pagamento.find("DataScadenzaPagamento")
             if data_scadenza is not None:
                 scadenza = data_scadenza.text
-        
-            
+
     new_supplier = {
         "PIVA": p_iva,
         "nome": denominazione,
@@ -112,8 +109,8 @@ def update_csv(new_bills):
     # creazione id per nuove fatture
     for bill in new_bills:
         bill['id'] = next(ID_GEN)
-        
-    data = data.append(new_bills)
+
+    data = pd.concat([data, pd.DataFrame(new_bills)], ignore_index=True)
     
     # update csv (se il file non esiste verrà creato)
     data.drop_duplicates(subset=["fornitore", "numero"])\
@@ -135,8 +132,8 @@ def update_suppliers_csv(new_suppliers):
             for supplier in new_suppliers 
             if not (data['PIVA'] == supplier['PIVA']).any()
         ]
-        
-    data = data.append(new_suppliers)
+
+    data = pd.concat([data, pd.DataFrame(new_suppliers)], ignore_index=True)
     
     # update csv (se il file non esiste verrà creato)
     data.drop_duplicates(subset=["PIVA"])\

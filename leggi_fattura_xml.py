@@ -43,7 +43,7 @@ def parse_bill_xml(filename):
     if denominazione_tag is not None:
         denominazione = denominazione_tag.text
     else:
-        denominazione = anagrafica.find("Nome").text + ' ' + anagrafica.find("Cognome").text
+        denominazione = f"{anagrafica.find('Nome').text} {anagrafica.find('Cognome').text}"
 
     body = root.find("FatturaElettronicaBody")
     dati_gen = body.find("DatiGenerali")
@@ -75,7 +75,7 @@ def parse_bill_xml(filename):
     new_bill = {
         "id": None,
         "fornitore": denominazione,
-        "numero": '\"' + numero_fattura + '\"',
+        "numero": f'\"{numero_fattura}\"',
         "data": data_fattura,
         "importo": importo,
         "scadenza": scadenza,
@@ -92,7 +92,6 @@ def update_csv(new_bills):
     
     if not os.path.exists(BILLS_DATA):
         print('Nessuna base dati csv presente, ne verrà creata una nuova.')
-        
         data = pd.DataFrame()
     else:
         data = pd.read_csv(BILLS_DATA, sep=';', decimal=',')
@@ -142,7 +141,7 @@ def update_suppliers_csv(new_suppliers):
 
 def add_timestamp_to_name(basename):
     filename, file_extension = os.path.splitext(basename)
-    new_name = filename + "_" + datetime.now().strftime("%Y%m%d%H%M%S") + file_extension
+    new_name = f"{filename}_{datetime.now().strftime('%Y%m%d%H%M%S')}{file_extension}"
     return new_name
 
 
